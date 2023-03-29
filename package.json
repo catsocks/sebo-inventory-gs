@@ -1,0 +1,19 @@
+{
+  "name": "produtos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/Code.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@google/clasp": "^2.4.2",
+    "@types/google-apps-script": "^1.0.58",
+    "eslint": "^8.36.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-googleappsscript": "^1.0.4",
+    "eslint-plugin-jsdoc": "^40.0.1"
+  }
+}

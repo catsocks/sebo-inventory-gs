@@ -1,0 +1,13 @@
+{
+  "timeZone": "America/Recife",
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "dependencies": {
+  },
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets.currentonly"
+  ],
+  "executionApi": {
+    "access": "ANYONE"
+  }
+}
