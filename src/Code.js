@@ -8,25 +8,7 @@ function onOpen() {
       .addItem('Pular para planilha', 'jumpToSheetFromUi')
       // .addSeparator()
       // .addItem('Preencher produto automaticamente', 'autofillProductFromUi')
-      .addSeparator()
-      .addItem('Inserir sequência de números', 'insertNumberSequenceFromUi')
       .addToUi();
-}
-
-/**
- * Fill the first column in the active range with an ascending sequence of
- * numbers.
- *
- * To be invoked through a custom menu.
- */
-function insertNumberSequenceFromUi() {
-  const range = SpreadsheetApp.getActiveRange();
-  if (range === null) {
-    SpreadsheetApp.getUi().alert('Inserir sequência de números',
-        'É necessário selecionar um intervalo.', ui.ButtonSet.OK);
-    return;
-  }
-  insertNumberSequence(range);
 }
 
 /**
