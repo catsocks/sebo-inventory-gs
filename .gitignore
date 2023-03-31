@@ -4,3 +4,6 @@ node_modules/
 # Command Line Apps Script Projects
 .clasp.json
 .clasprc.json
+
+# Sublime Text
+*.sublime*
