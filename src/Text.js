@@ -1,4 +1,6 @@
-/* exported formatBulletList, formatList, uncapitalize, removeSuffix */
+/* exported formatBulletList, formatList, uncapitalize, removeSuffix, slugify */
+
+const _ = LodashGS.load();
 
 const _listFormatter = new Intl.ListFormat('pt-BR',
     {style: 'long', type: 'conjunction'});
@@ -55,4 +57,14 @@ function removeSuffix(text, suffix) {
     return text.slice(0, text.length - suffix.length);
   }
   return text;
+}
+
+/**
+ * Return the given text in kebab case.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function slugify(text) {
+  return _.kebabCase(text);
 }

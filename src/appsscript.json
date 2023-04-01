@@ -3,6 +3,13 @@
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8",
   "dependencies": {
+    "libraries": [
+      {
+        "userSymbol": "LodashGS",
+        "version": "6",
+        "libraryId": "1SQ0PlSMwndIuOAgtVJdjxsuXueECtY9OGejVDS37ckSVbMll73EXf2PW"
+      }
+    ]
   },
   "oauthScopes": [
     "https://www.googleapis.com/auth/spreadsheets.currentonly"
