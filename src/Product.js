@@ -57,7 +57,8 @@ class Product extends MultiSheetRow {
   }
 
   setGTIN() {
-    this.setValue('Básico', 'Categoria', this.getValue('Impressos', 'ISBN-13'));
+    const isbn13 = this.getValue('Impressos', 'ISBN-13');
+    this.setValue('Básico', 'Cód. de barras (GTIN)', isbn13);
   }
 
   setShopeeTitle() {
@@ -131,33 +132,44 @@ class Product extends MultiSheetRow {
 
   getShopeeDescriptionMiscAttributes() {
     const attributes = [
-      {column: 'SKU'},
-      {column: 'Participantes: Autores', label: 'Autores',
-        formatter: 'csv'},
-      {column: 'Participantes: Tradutores', label: 'Tradutores',
-        formatter: 'csv'},
-      {column: 'Participantes: Editores', label: 'Editores', formatter: 'csv'},
-      {column: 'Participantes: Organizadores', label: 'Organizadores',
-        formatter: 'csv'},
       {column: 'Título: Secundário (subtítulo)', label: 'Subtítulo'},
-      {column: 'Título: Original (da obra traduzida)',
-        label: 'Título original'},
+      {
+        column: 'Título: Original (da obra traduzida)',
+        label: 'Título original',
+      },
       {column: 'Título: Do volume', label: 'Título do volume'},
-      {column: 'ISBN-10 da coleção'},
-      {column: 'ISBN-13 da coleção'},
-      {column: 'Idioma'},
-      {column: 'Origem'},
+      {column: 'N.º do volume'},
+      {column: 'N.º do tomo'},
+      {
+        column: 'Participantes: Autores',
+        label: 'Autores',
+        formatter: 'csv',
+      },
+      {
+        column: 'Participantes: Tradutores',
+        label: 'Tradutores',
+        formatter: 'csv',
+      },
+      {column: 'Participantes: Editores', label: 'Editores', formatter: 'csv'},
+      {
+        column: 'Participantes: Organizadores',
+        label: 'Organizadores',
+        formatter: 'csv',
+      },
+      {column: 'Coleção'},
       {column: 'Editora'},
       {column: 'Edição: Ano'},
       {column: 'Edição: N.º'},
       {column: 'Edição: Nome'},
+      {column: 'Tipo de capa', formatter: 'uncapitalize'},
+      {column: 'Idioma'},
+      {column: 'Origem'},
       {column: 'N.º da reimpressão'},
-      {column: 'Coleção'},
-      {column: 'N.º do volume'},
-      {column: 'N.º do tomo'},
       {column: 'ISBN-10'},
       {column: 'ISBN-13'},
-      {column: 'Tipo de capa'},
+      {column: 'ISBN-10 da coleção'},
+      {column: 'ISBN-13 da coleção'},
+      {column: 'SKU'},
     ];
     for (const attr of attributes) {
       attr.sheet = 'Impressos';
@@ -214,6 +226,7 @@ class Product extends MultiSheetRow {
   static getFormatter(name) {
     const formatters = {
       'csv': Product.formatCSV,
+      'uncapitalize': uncapitalize,
     };
     if (name in formatters) {
       return formatters[name];

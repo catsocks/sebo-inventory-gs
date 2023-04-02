@@ -42,6 +42,7 @@ class Row {
     this._values = this._range.getValues()[0];
     const styles = this._range.getTextStyles();
     this._italicValues = styles[0].map((v) => v.isItalic());
+    this._dirty = false;
   }
 
   /**
@@ -71,6 +72,7 @@ class Row {
       throw new Error(`Cannot change "${column}" value in italic.`);
     }
     if (idx >= 0) {
+      this._dirty = true;
       return this._values[idx] = value;
     }
     throw new ColumnNotFoundError(this._sheet.getName(), column);
@@ -83,17 +85,22 @@ class Row {
     for (let i = 0; i < values.length; i++) {
       this._values[i] = values[i];
     }
+    this._dirty = true;
   }
 
   /**
    * Save the cached values of the row back to the sheet.
    */
   save() {
+    if (!this._dirty) {
+      return;
+    }
     // Values which are assumed to be auto-generated, by a function such as
     // ARRAYFORMULA, are set to blank to avoid array expansion errors, as well
     // as to avoid making multiple slow calls to setValues or setValues.
     const values = this._values.map((v, i) => (this._italicValues[i]) ? '' : v);
     this._range.setValues([values]);
+    this._dirty = false;
   }
 
   /**
