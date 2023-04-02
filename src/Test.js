@@ -76,7 +76,7 @@ class MultiRowFixture extends Fixture {
 
 function itShouldFormatBulletList() {
   const parameters = [
-    [['apples'], '\u2001• apples.\n'],
+    [['apples'], '\u2001• apples.'],
     [['apples', 'oranges'], '\u2001• apples;\n\u2001• oranges.'],
   ];
   for (const [input, expected] of parameters) {

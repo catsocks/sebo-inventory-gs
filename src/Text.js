@@ -20,7 +20,7 @@ function formatBulletList(list, separator = '\u2001• ', itemEnd = ';',
     return '';
   }
   if (list.length == 1) {
-    return separator + list[0] + lastItemEnd + '\n';
+    return separator + list[0] + lastItemEnd;
   }
   return separator + list.join(itemEnd + '\n' + separator) + lastItemEnd;
 }

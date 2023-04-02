@@ -106,7 +106,7 @@ class Product extends MultiSheetRow {
     }
 
     const language = this.getValue('Impressos', 'Idioma');
-    if (language !== 'Português') {
+    if (language !== '' && language !== 'Português') {
       parts.push('em ' + language);
     }
 
@@ -191,9 +191,9 @@ class Product extends MultiSheetRow {
       },
       {column: 'Coleção'},
       {column: 'Editora'},
-      {column: 'Edição: Ano'},
-      {column: 'Edição: N.º'},
-      {column: 'Edição: Nome'},
+      {column: 'Edição: Ano', label: 'Ano da edição'},
+      {column: 'Edição: N.º', label: 'N.º da edição'},
+      {column: 'Edição: Nome', label: 'Nome da edição'},
       {column: 'Tipo de capa', formatter: 'uncapitalize'},
       {column: 'Idioma'},
       {column: 'Origem'},
@@ -202,14 +202,19 @@ class Product extends MultiSheetRow {
       {column: 'ISBN-13'},
       {column: 'ISBN-10 da coleção'},
       {column: 'ISBN-13 da coleção'},
-      {column: 'SKU'},
     ];
     for (const attr of attributes) {
       attr.sheet = 'Impressos';
     }
 
-    attributes.push({sheet: 'Básico', column: 'Cód. de barras (GTIN)',
-      label: 'Código de barras (GTIN)'});
+    attributes.push(
+        {
+          sheet: 'Básico',
+          column: 'Cód. de barras (GTIN)',
+          label: 'Código de barras (GTIN)',
+        },
+        {sheet: 'Impressos', column: 'SKU'},
+    );
 
     const text = this.formatDescriptionAttributes(attributes);
     if (text !== '') {
