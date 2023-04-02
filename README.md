@@ -6,7 +6,7 @@ with an inventory spreadsheet.
 The text for the menu items, alerts and prompts are in Portuguese. Everything
 else is in English.
 
-[Code.js](src/Code.js) is a good starting point to explore the code.
+[Code.js](src/Code.js) is a good starting point to explore this project.
 
 ## Forking
 
@@ -16,7 +16,7 @@ outside the Apps Script editor.
 
 The following Clasp commands are particularly useful:
 
-- `clasp push --watch` — Automatically watch for changes and push them.
+- `clasp push --watch` — Watch for changes and automatically push updated files.
 - `clasp run runTests` — Run the tests defined in [Test.js](src/Test.js).
 - `clasp logs --simplified` — Show logs. Useful when tests fail.
 

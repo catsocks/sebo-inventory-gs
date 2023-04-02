@@ -77,6 +77,11 @@ class Product extends MultiSheetRow {
       parts.push(edition + 'ª edição');
     }
 
+    const language = this.getValue('Impressos', 'Idioma');
+    if (language !== 'Português') {
+      parts.push('em ' + language);
+    }
+
     this.setValue('Shopee', 'Título', parts.join(' '));
   }
 
