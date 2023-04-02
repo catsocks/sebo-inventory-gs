@@ -109,14 +109,11 @@ class Product extends MultiSheetRow {
   getShopeeDescriptionCondition() {
     let attrs = this.getShopeeDescriptionConditionAttributes();
     if (attrs !== '') {
-      attrs = 'Atributos da condição:\n' + attrs;
+      attrs = 'Detalhes da condição:\n' + attrs;
     }
 
-    let otherDetails =
-      this.getValue('Impressos', 'Condição: Outros detalhes');
-    if (otherDetails !== '') {
-      otherDetails = 'Descrição da condição: ' + otherDetails;
-    }
+    const otherDetails =
+    this.getValue('Impressos', 'Condição: Outros detalhes');
 
     return [attrs, otherDetails].filter((s) => s !== '').join('\n\n');
   }
@@ -161,7 +158,11 @@ class Product extends MultiSheetRow {
     for (const attr of attributes) {
       attr.sheet = 'Impressos';
     }
-    return this.formatDescriptionAttributes(attributes);
+    const text = this.formatDescriptionAttributes(attributes);
+    if (text !== '') {
+      return 'Outros detalhes:\n' + text;
+    }
+    return '';
   }
 
   formatDescriptionAttributes(attributes) {
@@ -195,7 +196,7 @@ class Product extends MultiSheetRow {
   }
 
   static parseCSV(csv) {
-    return removeSuffix(csv, '; ...').split(';');
+    return removeSuffix(csv, '; ...').split(';').filter((s) => s !== '');
   }
 
   static formatCSV(csv) {
