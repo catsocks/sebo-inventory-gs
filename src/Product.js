@@ -131,6 +131,7 @@ class Product extends MultiSheetRow {
 
   getShopeeDescriptionMiscAttributes() {
     const attributes = [
+      {column: 'SKU'},
       {column: 'Participantes: Autores', label: 'Autores',
         formatter: 'csv'},
       {column: 'Participantes: Tradutores', label: 'Tradutores',
@@ -142,7 +143,10 @@ class Product extends MultiSheetRow {
       {column: 'Título: Original (da obra traduzida)',
         label: 'Título original'},
       {column: 'Título: Do volume', label: 'Título do volume'},
+      {column: 'ISBN-10 da coleção'},
+      {column: 'ISBN-13 da coleção'},
       {column: 'Idioma'},
+      {column: 'Origem'},
       {column: 'Editora'},
       {column: 'Edição: Ano'},
       {column: 'Edição: N.º'},
@@ -158,6 +162,10 @@ class Product extends MultiSheetRow {
     for (const attr of attributes) {
       attr.sheet = 'Impressos';
     }
+
+    attributes.push({sheet: 'Básico', column: 'Cód. de barras (GTIN)',
+      label: 'Código de barras (GTIN)'});
+
     const text = this.formatDescriptionAttributes(attributes);
     if (text !== '') {
       return 'Outros detalhes:\n' + text;
@@ -172,7 +180,7 @@ class Product extends MultiSheetRow {
       if (val === '') {
         continue;
       }
-      if (attr.formatter) {
+      if ('formatter' in attr) {
         val = Product.getFormatter(attr.formatter)(val);
       }
       list.push(`${attr.label || attr.column}: ${val}`);
