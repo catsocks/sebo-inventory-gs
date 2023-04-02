@@ -143,6 +143,10 @@ function autofillProductsFromUi() {
       ui.alert(alertTitle, `A fileira ${e.rowNo} não contém um SKU válido em ` +
         `sua primeira coluna.`, ui.ButtonSet.OK);
       return;
+    } else if (e instanceof ProductNotSupportedError) {
+      ui.alert(alertTitle, `Produtos com tipo ${e.productType} não são ` +
+        `compatíveis.`, ui.ButtonSet.OK);
+      return;
     }
     throw e;
   }

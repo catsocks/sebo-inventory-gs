@@ -7,9 +7,21 @@ class InvalidSKUError extends Error {
   }
 }
 
+class ProductNotSupportedError extends Error {
+  constructor(productType) {
+    super(`The product of type ${productType} is not supported.`);
+    this.productType = productType;
+  }
+}
+
 class Product extends MultiSheetRow {
   constructor(spreadsheet, sku) {
     super(spreadsheet, sku, 'Básico', 'Impressos', 'Shopee');
+
+    const productType = this.getValue('Básico', 'Tipo');
+    if (productType !== 'Impresso') {
+      throw new ProductNotSupportedError(productType);
+    }
 
     this.descriptionStrings =
       mapRange(spreadsheet.getRangeByName('DescriçãoShopeePartes'));
