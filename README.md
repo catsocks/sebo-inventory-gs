@@ -3,6 +3,9 @@
 [Google Apps Script](https://developers.google.com/apps-script) for helping me
 with an inventory spreadsheet.
 
+The text for the menu items, alerts and prompts are in Portuguese. Everything
+else is in English.
+
 [Code.js](src/Code.js) is a good starting point to explore the code.
 
 ## Forking
