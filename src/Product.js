@@ -8,8 +8,14 @@ class InvalidSKUError extends Error {
 }
 
 class ProductNotSupportedError extends Error {
-  constructor(productType) {
-    super(`The product of type ${productType} is not supported.`);
+  constructor(sku, productType) {
+    if (productType === '') {
+      super(`Could not guess the type of the product with SKU ${sku}. ` +
+        `Please specify it.`);
+    } else {
+      super(`The product of type "${productType}" is not supported.`);
+    }
+    this.sku = sku;
     this.productType = productType;
   }
 }
@@ -18,13 +24,35 @@ class Product extends MultiSheetRow {
   constructor(spreadsheet, sku) {
     super(spreadsheet, sku, 'Básico', 'Impressos', 'Shopee');
 
-    const productType = this.getValue('Básico', 'Tipo');
-    if (productType !== 'Impresso') {
-      throw new ProductNotSupportedError(productType);
+    const [guessed, type] = this.getTypeOrGuess(spreadsheet);
+    if (type !== 'Impresso') {
+      throw new ProductNotSupportedError(sku, type);
+    }
+    if (guessed) {
+      this.setValue('Básico', 'Tipo', type);
     }
 
     this.descriptionStrings =
       mapRange(spreadsheet.getRangeByName('DescriçãoShopeePartes'));
+  }
+
+  getTypeOrGuess(spreadsheet) {
+    let guessed = false;
+    const type = this.getValue('Básico', 'Tipo');
+    if (type !== '') {
+      return [true, type];
+    }
+    guessed = true;
+    return [guessed, Product.guessTypeFromSheet(spreadsheet.getActiveSheet())];
+  }
+
+  static guessTypeFromSheet(sheet) {
+    const sheetName = sheet.getName();
+    const typeBySheets = {'Impressos': 'Impresso'};
+    if (sheetName in typeBySheets) {
+      return typeBySheets[sheetName];
+    }
+    return null;
   }
 
   autofill(overwrite = false) {

@@ -125,8 +125,7 @@ function autofillProductsFromUi() {
   const rangeList = ss.getActiveRangeList();
   const ui = SpreadsheetApp.getUi();
   if (rangeList === null) {
-    ui.alert(alertTitle,
-        'É necessário selecionar um intervalo de SKUs de produtos.',
+    ui.alert(alertTitle, 'É necessário selecionar um intervalo com produtos.',
         ui.ButtonSet.OK);
     return;
   }
@@ -144,7 +143,12 @@ function autofillProductsFromUi() {
         `sua primeira coluna.`, ui.ButtonSet.OK);
       return;
     } else if (e instanceof ProductNotSupportedError) {
-      ui.alert(alertTitle, `Produtos com tipo ${e.productType} não são ` +
+      if (e.productType === '') {
+        ui.alert(alertTitle, `Não foi possível adivinhar o tipo do produto ` +
+          `com SKU ${e.sku}. Por favor o specifique.`, ui.ButtonSet.OK);
+        return;
+      }
+      ui.alert(alertTitle, `Produtos com tipo "${e.productType}" não são ` +
         `compatíveis.`, ui.ButtonSet.OK);
       return;
     }
