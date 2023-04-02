@@ -1,13 +1,19 @@
-/* exported onOpen, insertNumberSequenceFromUi, jumpToSheetFromUi,
-jumpToRowFromUi */
+/* exported onOpen, jumpToSheetFromUi, jumpToRowFromUi,
+autofillProductsFromUi */
+
+const menuItems = {
+  'jumpToRowFromUi': 'Pular para fileira',
+  'jumpToSheetFromUi': 'Pular para planilha',
+  'autofillProductsFromUi': 'Preencher produtos automaticamente',
+};
 
 function onOpen() {
   SpreadsheetApp.getUi()
       .createMenu('Shop')
-      .addItem('Pular para fileira', 'jumpToRowFromUi')
-      .addItem('Pular para planilha', 'jumpToSheetFromUi')
-      // .addSeparator()
-      // .addItem('Preencher produto automaticamente', 'autofillProductFromUi')
+      .addItem(menuItems['jumpToRowFromUi'], 'jumpToRowFromUi')
+      .addItem(menuItems['jumpToSheetFromUi'], 'jumpToSheetFromUi')
+      .addSeparator()
+      .addItem(menuItems['autofillProductsFromUi'], 'autofillProductsFromUi')
       .addToUi();
 }
 
@@ -21,13 +27,13 @@ function onOpen() {
  * To be invoked through a custom menu.
  */
 function jumpToSheetFromUi() {
-  const promptTitle = 'Pular para planilha';
+  const promptTitle = menuItems['jumpToRowFromUi'];
 
   const ui = SpreadsheetApp.getUi();
   const resp = ui.prompt(promptTitle,
       'Forneça o nome da planilha a ser pesquisada. Uma fileira com ' +
       'o mesmo valor da primeira coluna da primeira fileira no intervalo ' +
-      ' ativo também será pesquisada.', ui.ButtonSet.OK);
+      'ativo também será pesquisada.', ui.ButtonSet.OK);
   if (resp.getSelectedButton() === ui.Button.CLOSE) {
     return;
   }
@@ -59,11 +65,11 @@ function jumpToSheetFromUi() {
 
   // Try to find a row that shares the same first column value to set as active.
   const activeSheet = SpreadsheetApp.getActiveSheet();
-  const text = activeSheet.getRange(activeRange.getRow(), 1).getValue();
-  if (text) {
+  const value = activeSheet.getRange(activeRange.getRow(), 1).getValue();
+  if (value !== '') {
     const range = targetSheet.getRange(1, 1, targetSheet.getLastRow());
-    const match = range.createTextFinder(text).findNext();
-    if (match) {
+    const match = range.createTextFinder(value).findNext();
+    if (match !== null) {
       targetSheet.setActiveRange(match);
       return;
     }
@@ -80,7 +86,7 @@ function jumpToSheetFromUi() {
  * To be invoked through a custom menu.
  */
 function jumpToRowFromUi() {
-  const promptTitle = 'Pular para fileira';
+  const promptTitle = menuItems['jumpToSheetFromUi'];
 
   const ui = SpreadsheetApp.getUi();
   const resp = ui.prompt(promptTitle, 'Forneça o valor da primeira coluna da ' +
@@ -107,6 +113,52 @@ function jumpToRowFromUi() {
     `"${respText}" na primeira coluna.`, ui.ButtonSet.OK);
 }
 
-// function autofillProductFromUi() {
+/**
+ * Autofill the rows for products across sheets.
+ *
+ * To be invoked through a custom menu.
+ */
+function autofillProductsFromUi() {
+  const alertTitle = menuItems['autofillProductsFromUi'];
 
-// }
+  const ss = SpreadsheetApp.getActive();
+  const rangeList = ss.getActiveRangeList();
+  const ui = SpreadsheetApp.getUi();
+  if (rangeList === null) {
+    ui.alert(alertTitle,
+        'É necessário selecionar um intervalo de SKUs de produtos.',
+        ui.ButtonSet.OK);
+    return;
+  }
+
+  let products;
+  try {
+    products = getProducts(ss, rangeList);
+  } catch (e) {
+    if (e instanceof FullSheetError) {
+      ui.alert(alertTitle, 'É necessário criar mais fileiras na planilha ' +
+        `${e.sheetName} para continuar.`, ui.ButtonSet.OK);
+      return;
+    } else if (e instanceof InvalidSKUError) {
+      ui.alert(alertTitle, `A fileira ${e.rowNo} não contém um SKU válido em ` +
+        `sua primeira coluna.`, ui.ButtonSet.OK);
+      return;
+    }
+    throw e;
+  }
+
+  for (const product of products) {
+    try {
+      product.autofill();
+    } catch (e) {
+      if (e instanceof ColumnNotFoundError) {
+        ui.alert(alertTitle, `Não foi possível encontrar a coluna ` +
+          `rotulada "${e.column}" na planilha ${e.sheetName}.`,
+        ui.ButtonSet.OK);
+        return;
+      }
+      throw e;
+    }
+    product.save();
+  }
+}
