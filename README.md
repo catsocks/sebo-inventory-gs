@@ -30,7 +30,7 @@ Additionally, in order for the above instructions to work, you will need to
 enable the _Apps Script API_ in the GCP project associated with this script by
 visting the link below:
 
-	`https://console.cloud.google.com/apis/library/script.googleapis.com?project=<projectId>`
+	https://console.cloud.google.com/apis/library/script.googleapis.com?project=<projectId>
 
 ## To-do
 
