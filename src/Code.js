@@ -130,32 +130,39 @@ function autofillProductsFromUi() {
     return;
   }
 
-  let products;
+  let skus;
   try {
-    products = getProducts(ss, rangeList);
+    skus = findProductSKUs(rangeList);
   } catch (e) {
-    if (e instanceof FullSheetError) {
-      ui.alert(alertTitle, 'É necessário criar mais fileiras na planilha ' +
-        `${e.sheetName} para continuar.`, ui.ButtonSet.OK);
-      return;
-    } else if (e instanceof InvalidSKUError) {
-      ui.alert(alertTitle, `A fileira ${e.rowNo} não contém um SKU válido em ` +
-        `sua primeira coluna.`, ui.ButtonSet.OK);
-      return;
-    } else if (e instanceof ProductNotSupportedError) {
-      if (e.productType === '') {
-        ui.alert(alertTitle, `Não foi possível adivinhar o tipo do produto ` +
-          `com SKU ${e.sku}. Por favor o specifique.`, ui.ButtonSet.OK);
-        return;
-      }
-      ui.alert(alertTitle, `Produtos com tipo "${e.productType}" não são ` +
-        `compatíveis.`, ui.ButtonSet.OK);
+    if (e instanceof InvalidSKUError) {
+      ui.alert(alertTitle, `A fileira ${e.rowNo} não contém um SKU válido ` +
+          `em sua primeira coluna.`, ui.ButtonSet.OK);
       return;
     }
-    throw e;
   }
 
-  for (const product of products) {
+  for (const sku of skus) {
+    let product;
+    try {
+      product = new Product(ss, sku);
+    } catch (e) {
+      if (e instanceof FullSheetError) {
+        ui.alert(alertTitle, 'É necessário criar mais fileiras na planilha ' +
+          `${e.sheetName} para continuar.`, ui.ButtonSet.OK);
+        continue;
+      } else if (e instanceof ProductNotSupportedError) {
+        if (e.productType === '') {
+          ui.alert(alertTitle, `Não foi possível adivinhar o tipo do produto ` +
+            `com SKU ${e.sku}. Por favor o specifique.`, ui.ButtonSet.OK);
+          continue;
+        }
+        ui.alert(alertTitle, `Produtos com tipo "${e.productType}" não são ` +
+          `compatíveis.`, ui.ButtonSet.OK);
+        continue;
+      }
+      throw e;
+    }
+
     try {
       product.autofill();
     } catch (e) {
@@ -163,10 +170,11 @@ function autofillProductsFromUi() {
         ui.alert(alertTitle, `Não foi possível encontrar a coluna ` +
           `rotulada "${e.column}" na planilha ${e.sheetName}.`,
         ui.ButtonSet.OK);
-        return;
+        continue;
       }
       throw e;
     }
+
     product.save();
   }
 }

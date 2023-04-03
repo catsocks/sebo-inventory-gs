@@ -31,7 +31,8 @@ class Row {
    */
   constructor(sheet, rowNo) {
     if (rowNo === 1) {
-      throw new Error('The first row cannot be used.');
+      throw new Error('The first row cannot be used. It should be reserved ' +
+        'for the header row.');
     }
 
     this._sheet = sheet;
