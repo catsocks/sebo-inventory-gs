@@ -1,4 +1,5 @@
 /* exported Row, MultiSheetRow, mapRange */
+'use strict';
 
 class ColumnNotFoundError extends Error {
   constructor(sheetName, column) {

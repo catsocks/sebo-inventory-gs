@@ -1,4 +1,5 @@
 /* exported Product, getProducts, findProductSKUs */
+'use strict';
 
 class InvalidSKUError extends Error {
   constructor(rowNo) {

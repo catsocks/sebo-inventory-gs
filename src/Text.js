@@ -1,4 +1,5 @@
 /* exported formatBulletList, formatList, uncapitalize, removeSuffix, slugify */
+'use strict';
 
 const _ = LodashGS.load();
 

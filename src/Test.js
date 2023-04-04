@@ -1,4 +1,5 @@
 /* exported runTests */
+'use strict';
 
 function assertEqual(actual, expected) {
   if (actual !== expected) {

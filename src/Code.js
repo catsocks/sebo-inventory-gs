@@ -1,5 +1,6 @@
 /* exported onOpen, jumpToSheetFromUi, jumpToRowFromUi,
 autofillProductsFromUi */
+'use strict';
 
 const menuItems = {
   'jumpToRowFromUi': 'Pular para fileira',
