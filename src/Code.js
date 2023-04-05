@@ -31,19 +31,18 @@ function onOpen() {
  * To be invoked through a custom menu.
  */
 function jumpToSheetFromUi() {
-  const promptTitle = menuItems['jumpToRowFromUi'];
+  const dialogTitle = menuItems['jumpToRowFromUi'];
 
   const ui = SpreadsheetApp.getUi();
-  const resp = ui.prompt(promptTitle,
-      'Forneça o nome da planilha a ser pesquisada. Uma fileira com ' +
-      'o mesmo valor da primeira coluna da primeira fileira no intervalo ' +
-      'ativo também será pesquisada.', ui.ButtonSet.OK);
+  const resp = ui.prompt(dialogTitle,
+      'Forneça o nome da planilha a ser pesquisada. ' +
+      'Dica: selecione a célula de um produto.', ui.ButtonSet.OK);
   if (resp.getSelectedButton() === ui.Button.CLOSE) {
     return;
   }
   const respText = resp.getResponseText();
   if (respText === '') {
-    ui.alert(promptTitle,
+    ui.alert(dialogTitle,
         'É necessário informar pelo menos parte do nome de uma planilha a ' +
       'ser pesquisada.', ui.ButtonSet.OK);
     return;
@@ -57,7 +56,7 @@ function jumpToSheetFromUi() {
     }
   }
   if (targetSheet === undefined) {
-    ui.alert(promptTitle, 'Não foi possível encontrar uma planilha que ' +
+    ui.alert(dialogTitle, 'Não foi possível encontrar uma planilha que ' +
       `começasse com "${respText}".`, ui.ButtonSet.OK);
     return;
   }
@@ -90,17 +89,17 @@ function jumpToSheetFromUi() {
  * To be invoked through a custom menu.
  */
 function jumpToRowFromUi() {
-  const promptTitle = menuItems['jumpToSheetFromUi'];
+  const dialogTitle = menuItems['jumpToSheetFromUi'];
 
   const ui = SpreadsheetApp.getUi();
-  const resp = ui.prompt(promptTitle, 'Forneça o valor da primeira coluna da ' +
+  const resp = ui.prompt(dialogTitle, 'Forneça o valor da primeira coluna da ' +
     'fileira a ser pesquisada.', ui.ButtonSet.OK);
   if (resp.getSelectedButton() === ui.Button.CLOSE) {
     return;
   }
   const respText = resp.getResponseText();
   if (respText === '') {
-    ui.alert(promptTitle, 'É necessário informar um valor a ser pesquisado.',
+    ui.alert(dialogTitle, 'É necessário informar um valor a ser pesquisado.',
         ui.ButtonSet.OK);
     return;
   }
@@ -113,7 +112,7 @@ function jumpToRowFromUi() {
     return;
   }
 
-  ui.alert(promptTitle, `Não foi possível encontrar uma fileira com o valor ` +
+  ui.alert(dialogTitle, `Não foi possível encontrar uma fileira com o valor ` +
     `"${respText}" na primeira coluna.`, ui.ButtonSet.OK);
 }
 
@@ -125,13 +124,13 @@ function jumpToRowFromUi() {
  * @param {boolean} overwrite
  */
 function autofillProductsFromUi(overwrite = false) {
-  const alertTitle = menuItems['autofillProductsFromUi'];
+  const dialogTitle = menuItems['autofillProductsFromUi'];
 
   const ss = SpreadsheetApp.getActive();
   const rangeList = ss.getActiveRangeList();
   const ui = SpreadsheetApp.getUi();
   if (rangeList === null) {
-    ui.alert(alertTitle, 'É necessário selecionar um intervalo com produtos.',
+    ui.alert(dialogTitle, 'É necessário selecionar um intervalo com produtos.',
         ui.ButtonSet.OK);
     return;
   }
@@ -141,7 +140,7 @@ function autofillProductsFromUi(overwrite = false) {
     skus = findProductSKUs(rangeList);
   } catch (e) {
     if (e instanceof InvalidSKUError) {
-      ui.alert(alertTitle, `A fileira ${e.rowNo} não contém um SKU válido ` +
+      ui.alert(dialogTitle, `A fileira ${e.rowNo} não contém um SKU válido ` +
           `em sua primeira coluna.`, ui.ButtonSet.OK);
       return;
     }
@@ -153,16 +152,17 @@ function autofillProductsFromUi(overwrite = false) {
       product = new Product(ss, sku);
     } catch (e) {
       if (e instanceof FullSheetError) {
-        ui.alert(alertTitle, 'É necessário criar mais fileiras na planilha ' +
+        ui.alert(dialogTitle, 'É necessário criar mais fileiras na planilha ' +
           `${e.sheetName} para continuar.`, ui.ButtonSet.OK);
         continue;
       } else if (e instanceof ProductNotSupportedError) {
         if (e.productType === '') {
-          ui.alert(alertTitle, `Não foi possível adivinhar o tipo do produto ` +
-            `com SKU ${e.sku}. Por favor o specifique.`, ui.ButtonSet.OK);
+          ui.alert(dialogTitle, `Não foi possível adivinhar o tipo do ` +
+            `produto com SKU ${e.sku}. Por favor o specifique.`,
+          ui.ButtonSet.OK);
           continue;
         }
-        ui.alert(alertTitle, `Produtos com tipo "${e.productType}" não são ` +
+        ui.alert(dialogTitle, `Produtos com tipo "${e.productType}" não são ` +
           `compatíveis.`, ui.ButtonSet.OK);
         continue;
       }
@@ -173,7 +173,7 @@ function autofillProductsFromUi(overwrite = false) {
       product.autofill(overwrite);
     } catch (e) {
       if (e instanceof ColumnNotFoundError) {
-        ui.alert(alertTitle, `Não foi possível encontrar a coluna ` +
+        ui.alert(dialogTitle, `Não foi possível encontrar a coluna ` +
           `rotulada "${e.column}" na planilha ${e.sheetName}.`,
         ui.ButtonSet.OK);
         continue;
