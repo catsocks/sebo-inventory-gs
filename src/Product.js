@@ -23,7 +23,7 @@ class ProductNotSupportedError extends Error {
 
 class Product extends MultiSheetRow {
   constructor(spreadsheet, sku) {
-    super(spreadsheet, sku, 'Básico', 'Impressos', 'Shopee');
+    super(spreadsheet, sku, 'Básico', 'Impressos', 'Shopee', 'Mercado Livre');
 
     const [guessed, type] = this.getTypeOrGuess(spreadsheet);
     if (type !== 'Impresso') {
@@ -57,19 +57,15 @@ class Product extends MultiSheetRow {
   }
 
   autofill(overwrite = false) {
-    const values = [
-      [['Básico', 'Referência'], this.setReference],
-      [['Básico', 'Categoria'], this.setCategory],
-      [['Básico', 'Cód. de barras (GTIN)'], this.setGTIN],
-      [['Shopee', 'Título'], this.setShopeeTitle],
-      [['Shopee', 'Descrição'], this.setShopeeDescription],
-    ];
-
-    for (const [path, fn] of values) {
-      if (this.getValue(...path) === '' || overwrite) {
-        fn.bind(this)();
-      }
-    }
+    const filler = new ProductColumnsAutofiller();
+    filler.add('Básico', 'Referência', this.setReference);
+    filler.add('Básico', 'Categoria', this.setCategory);
+    filler.add('Básico', 'Cód. de barras (GTIN)', this.setGTIN);
+    filler.add('Shopee', 'Título', this.setShopeeTitle);
+    filler.add('Shopee', 'Descrição', this.setShopeeDescription);
+    filler.add('Mercado Livre', 'Título', this.setMercadoLivreTitle);
+    filler.add('Mercado Livre', 'Descrição', this.setMercadoLivreDescription);
+    filler.autofill(this, overwrite);
   }
 
   setReference() {
@@ -100,6 +96,14 @@ class Product extends MultiSheetRow {
   }
 
   setShopeeTitle() {
+    this.setValue('Shopee', 'Título', this.createTitle());
+  }
+
+  setMercadoLivreTitle() {
+    this.setValue('Mercado Livre', 'Título', this.createTitle());
+  }
+
+  createTitle() {
     const parts = [
       this.getValue('Impressos', 'Tipo'),
       this.getValue('Impressos', 'Título: Como na capa'),
@@ -120,7 +124,7 @@ class Product extends MultiSheetRow {
       parts.push('em ' + language);
     }
 
-    this.setValue('Shopee', 'Título', parts.join(' '));
+    return parts.join(' ');
   }
 
   /**
@@ -139,74 +143,91 @@ class Product extends MultiSheetRow {
     const parts = [];
 
     parts.push(this.descriptionStrings.get('Condição'));
-    parts.push(this.getShopeeDescriptionCondition());
-    parts.push(this.getShopeeDescriptionMiscProductAttributes());
+    parts.push(this.createShopeeConditionDescription());
+    parts.push(this.createShopeeDescriptionAttributes());
     parts.push(this.getValue('Impressos', 'Outros detalhes'));
-    parts.push(this.descriptionStrings.get('Chat'));
+    parts.push(this.descriptionStrings.get('Shopee: Chat'));
     parts.push(this.descriptionStrings.get('Fotos'));
-    parts.push(this.getShopeeDescriptionSynopsis());
+    parts.push(this.createShopeeDescriptionSynopsis());
 
     const description = parts.filter((s) => s !== '').join('\n\n');
     this.setValue('Shopee', 'Descrição', description);
   }
 
-  getShopeeDescriptionCondition() {
-    let attribs = this.getShopeeDescriptionConditionProductAttributes();
-    if (attribs !== '') {
-      attribs = 'Detalhes da condição:\n' + attribs;
-    }
-
+  createShopeeConditionDescription() {
+    const attribs = this.createShopeeConditionDescriptionAttributes();
     const otherDetails =
-    this.getValue('Impressos', 'Condição: Outros detalhes');
-
-    return [attribs, otherDetails].filter((s) => s !== '').join('\n\n');
+      this.getValue('Impressos', 'Condição: Outros detalhes');
+    const text = [attribs, otherDetails].filter((s) => s !== '').join('\n\n');
+    if (text === '') {
+      return '';
+    }
+    const prefix = 'Detalhes da condição:';
+    if (attribs === '') {
+      return prefix + ' ' + uncapitalize(text);
+    }
+    return prefix + '\n' + text;
   }
 
-  getShopeeDescriptionConditionProductAttributes() {
-    const formatters = ['uncapitalize', 'truncateSentence'];
-    const attribs = new ProductAttributes(this, 'Impressos', formatters);
-    attribs.add('Condição: Grifos', 'Grifos');
-    attribs.add('Condição: Anotações', 'Anotações');
-    attribs.add('Condição: Manchas', 'Manchas');
-    attribs.add('Condição: Sujeira', 'Sujeira');
-    attribs.add('Condição: Machucados', 'Machucados');
-    return attribs.format();
+  createShopeeConditionDescriptionAttributes() {
+    const columnFormatters = ['uncapitalize', 'truncateSentence'];
+    const fmt = new ProductAttributesFormatter('Impressos', columnFormatters);
+    fmt.add('Condição: Grifos', 'Grifos');
+    fmt.add('Condição: Anotações', 'Anotações');
+    fmt.add('Condição: Manchas', 'Manchas');
+    fmt.add('Condição: Sujeira', 'Sujeira');
+    fmt.add('Condição: Machucados', 'Machucados');
+    return fmt.format(this);
   }
 
-  getShopeeDescriptionMiscProductAttributes() {
-    const attribs = new ProductAttributes(this, 'Impressos');
-    attribs.add('Título: Secundário (subtítulo)', 'Subtítulo');
-    attribs.add('Título: Original (da obra traduzida)', 'Título original');
-    attribs.add('Título: Do volume', 'Título do volume');
-    attribs.add('N.º do volume');
-    attribs.add('N.º do tomo');
-    attribs.add('Participantes: Autores', 'Autores', ['csv']);
-    attribs.add('Participantes: Tradutores', 'Tradutores', ['csv']);
-    attribs.add('Participantes: Editores', 'Editores', ['csv']);
-    attribs.add('Participantes: Organizadores', 'Organizadores', ['csv']);
-    attribs.add('Obra');
-    attribs.add('Coleção');
-    attribs.add('N.º do vol. da coleção', 'N.º do volume da coleção');
-    attribs.add('Editora');
-    attribs.add('Edição: Ano', 'Ano da edição');
-    attribs.add('Edição: N.º', 'N.º da edição');
-    attribs.add('Edição: Nome', 'Nome da edição');
-    attribs.add('Tipo de capa', '', ['uncapitalize']);
-    attribs.add('Idioma');
-    attribs.add('Origem');
-    attribs.add('N.º da reimpressão');
-    attribs.add('ISBN-10');
-    attribs.add('ISBN-13');
-    attribs.add('ISBN-10 da coleção');
-    attribs.add('ISBN-13 da coleção');
-    attribs.add('Cód. de barras (GTIN)', 'Código de barras', [], 'Básico');
-    attribs.add('SKU', 'Código interno');
+  createShopeeDescriptionAttributes() {
+    const fmt = new ProductAttributesFormatter('Impressos');
+    fmt.add('Título: Secundário (subtítulo)', 'Subtítulo');
+    fmt.add('Título: Original (da obra traduzida)', 'Título original');
+    fmt.add('Título: Do volume', 'Título do volume');
+    fmt.add('N.º do volume');
+    fmt.add('N.º do tomo');
+    fmt.add('Participantes: Autores', 'Autores', ['csv']);
+    fmt.add('Participantes: Tradutores', 'Tradutores', ['csv']);
+    fmt.add('Participantes: Editores', 'Editores', ['csv']);
+    fmt.add('Participantes: Organizadores', 'Organizadores', ['csv']);
+    fmt.add('Obra');
+    fmt.add('Coleção');
+    fmt.add('N.º do vol. da coleção', 'N.º do volume da coleção');
+    fmt.add('Editora');
+    fmt.add('Edição: Ano', 'Ano da edição');
+    fmt.add('Edição: N.º', 'N.º da edição');
+    fmt.add('Edição: Nome', 'Nome da edição');
+    fmt.add('Tipo de capa', '', ['uncapitalize']);
+    fmt.add('Idioma');
+    fmt.add('Origem');
+    fmt.add('N.º da reimpressão');
+    fmt.add('ISBN-10');
+    fmt.add('ISBN-13');
+    fmt.add('ISBN-10 da coleção');
+    fmt.add('ISBN-13 da coleção');
+    fmt.add('Cód. de barras (GTIN)', 'Código de barras', [], 'Básico');
+    fmt.add('SKU', 'Código interno');
 
-    const text = attribs.format();
+    const text = fmt.format(this);
     if (text !== '') {
       return 'Outros detalhes:\n' + text;
     }
     return '';
+  }
+
+  setMercadoLivreDescription() {
+    const parts = [];
+
+    parts.push(this.descriptionStrings.get('Condição'));
+    parts.push(this.createShopeeConditionDescription());
+    parts.push(this.getValue('Impressos', 'Outros detalhes'));
+    parts.push(this.descriptionStrings.get('Mercado Livre: Perguntas'));
+    parts.push(this.descriptionStrings.get('Fotos'));
+    parts.push(this.createShopeeDescriptionSynopsis());
+
+    const description = parts.filter((s) => s !== '').join('\n\n');
+    this.setValue('Mercado Livre', 'Descrição', description);
   }
 
   static formatCSV(csv) {
@@ -217,7 +238,7 @@ class Product extends MultiSheetRow {
     return removeSuffix(csv, '; ...').split(';').filter((s) => s !== '');
   }
 
-  getShopeeDescriptionSynopsis() {
+  createShopeeDescriptionSynopsis() {
     let synopsis = this.getValue('Impressos', 'Sinopse');
     if (synopsis === '') {
       return '';
@@ -233,17 +254,16 @@ class Product extends MultiSheetRow {
   }
 }
 
-class ProductAttributes {
-  constructor(product, defaultSheet, defaultFormatters) {
-    this._product = product;
+class ProductAttributesFormatter {
+  constructor(defaultSheet, defaultColumnFormatters) {
     this._defaultSheet = defaultSheet;
-    this._defaultFormatters = defaultFormatters || [];
+    this._defaultColumnFormatters = defaultColumnFormatters || [];
     this._list = [];
   }
 
-  add(column, label, formatters=[], sheet) {
-    if (formatters.length === 0) {
-      formatters = this._defaultFormatters;
+  add(column, label, columnFormatters=[], sheet) {
+    if (columnFormatters.length === 0) {
+      columnFormatters = this._defaultColumnFormatters;
     }
 
     sheet = sheet || this._defaultSheet;
@@ -255,35 +275,54 @@ class ProductAttributes {
       sheet: sheet,
       column: column,
       label: label || '',
-      formatters: formatters,
+      columnFormatters: columnFormatters,
     });
   }
 
-  format() {
+  format(product) {
     const list = [];
     for (const attr of this._list) {
-      let val = this._product.getValue(attr.sheet, attr.column);
+      let val = product.getValue(attr.sheet, attr.column);
       if (val === '') {
         continue;
       }
-      for (const formatter of attr.formatters) {
-        val = ProductAttributes.getFormatter(formatter)(val);
+      for (const formatter of attr.columnFormatters) {
+        val = ProductAttributesFormatter.getColumnFormatter(formatter)(val);
       }
       list.push(`${attr.label || attr.column}: ${val}`);
     }
     return formatBulletList(list);
   }
 
-  static getFormatter(name) {
-    const formatters = {
-      'csv': Product.formatCSV,
-      'uncapitalize': uncapitalize,
-      'truncateSentence': (s) => removeSuffix(s, '.'),
-    };
-    if (name in formatters) {
-      return formatters[name];
+  static getColumnFormatter(name) {
+    if (name in ProductAttributesFormatter.columnFormatters) {
+      return ProductAttributesFormatter.columnFormatters[name];
     }
-    throw new Error(`Unknown formatter ${name}.`);
+    throw new Error(`Unknown column formatter ${name}.`);
+  }
+}
+
+ProductAttributesFormatter.columnFormatters = {
+  'csv': Product.formatCSV,
+  'uncapitalize': uncapitalize,
+  'truncateSentence': (s) => removeSuffix(s, '.'),
+};
+
+class ProductColumnsAutofiller {
+  constructor() {
+    this._list = [];
+  }
+
+  add(sheet, column, fn) {
+    this._list.push({sheet, column, fn});
+  }
+
+  autofill(product, overwrite) {
+    for (const {sheet, column, fn} of this._list) {
+      if (product.getValue(sheet, column) === '' || overwrite) {
+        fn.bind(product)();
+      }
+    }
   }
 }
 
