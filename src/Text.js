@@ -3,9 +3,6 @@
 
 const _ = LodashGS.load();
 
-const _listFormatter = new Intl.ListFormat('pt-BR',
-    {style: 'long', type: 'conjunction'});
-
 /**
  * Returns a bullet list from the given list.
  *
@@ -33,7 +30,12 @@ function formatBulletList(list, separator = '\u2001• ', itemEnd = ';',
  * @returns {string}
  */
 function formatList(list) {
-  return _listFormatter.format(list);
+  const timeZone = SpreadsheetApp.getActiveSpreadsheet()
+      .getSpreadsheetLocale()
+      .replace('_', '-');
+  const formatter =
+    new Intl.ListFormat(timeZone, {style: 'long', type: 'conjunction'});
+  return formatter.format(list);
 }
 
 /**
