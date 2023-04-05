@@ -31,7 +31,7 @@ function onOpen() {
  * To be invoked through a custom menu.
  */
 function jumpToSheetFromUi() {
-  const dialogTitle = menuItems['jumpToRowFromUi'];
+  const dialogTitle = menuItems['jumpToSheetFromUi'];
 
   const ui = SpreadsheetApp.getUi();
   const resp = ui.prompt(dialogTitle,
@@ -89,7 +89,7 @@ function jumpToSheetFromUi() {
  * To be invoked through a custom menu.
  */
 function jumpToRowFromUi() {
-  const dialogTitle = menuItems['jumpToSheetFromUi'];
+  const dialogTitle = menuItems['jumpToRowFromUi'];
 
   const ui = SpreadsheetApp.getUi();
   const resp = ui.prompt(dialogTitle, 'Forneça o valor da primeira coluna da ' +
