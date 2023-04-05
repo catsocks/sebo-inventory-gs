@@ -58,6 +58,8 @@ class Product extends MultiSheetRow {
 
   autofill(overwrite = false) {
     const filler = new ProductColumnsAutofiller();
+    filler.add('Básico', 'Data criado', this.setDateCreated);
+    filler.add('Básico', 'Estoque', this.setStock);
     filler.add('Básico', 'Referência', this.setReference);
     filler.add('Básico', 'Categoria', this.setCategory);
     filler.add('Básico', 'Cód. de barras (GTIN)', this.setGTIN);
@@ -66,6 +68,14 @@ class Product extends MultiSheetRow {
     filler.add('Mercado Livre', 'Título', this.setMercadoLivreTitle);
     filler.add('Mercado Livre', 'Descrição', this.setMercadoLivreDescription);
     filler.autofill(this, overwrite);
+  }
+
+  setDateCreated() {
+    this.setValue('Básico', 'Data criado', getTimelessDate());
+  }
+
+  setStock() {
+    this.setValue('Básico', 'Estoque', 1);
   }
 
   setReference() {
