@@ -179,14 +179,14 @@ class MultiSheetRow {
   }
 
   getValue(sheetName, column) {
-    return this.getSheet(sheetName).getValue(column);
+    return this.getRow(sheetName).getValue(column);
   }
 
   setValue(sheetName, column, value) {
-    return this.getSheet(sheetName).setValue(column, value);
+    return this.getRow(sheetName).setValue(column, value);
   }
 
-  getSheet(sheetName) {
+  getRow(sheetName) {
     if (sheetName in this._rowsBySheet) {
       return this._rowsBySheet[sheetName];
     }
