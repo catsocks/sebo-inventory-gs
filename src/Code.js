@@ -1,11 +1,12 @@
 /* exported onOpen, jumpToSheetFromUi, jumpToRowFromUi,
-autofillProductsFromUi */
+autofillProductsFromUi, forceAutofillProductsFromUi */
 'use strict';
 
 const menuItems = {
   'jumpToRowFromUi': 'Pular para fileira',
   'jumpToSheetFromUi': 'Pular para planilha',
   'autofillProductsFromUi': 'Preencher produtos automaticamente',
+  'forceAutofillProductsFromUi': 'Preencher produtos automaticamente (forçar)',
 };
 
 function onOpen() {
@@ -15,6 +16,8 @@ function onOpen() {
       .addItem(menuItems['jumpToSheetFromUi'], 'jumpToSheetFromUi')
       .addSeparator()
       .addItem(menuItems['autofillProductsFromUi'], 'autofillProductsFromUi')
+      .addItem(menuItems['forceAutofillProductsFromUi'],
+          'forceAutofillProductsFromUi')
       .addToUi();
 }
 
@@ -118,8 +121,10 @@ function jumpToRowFromUi() {
  * Autofill the rows for products across sheets.
  *
  * To be invoked through a custom menu.
+ *
+ * @param {boolean} overwrite
  */
-function autofillProductsFromUi() {
+function autofillProductsFromUi(overwrite = false) {
   const alertTitle = menuItems['autofillProductsFromUi'];
 
   const ss = SpreadsheetApp.getActive();
@@ -165,7 +170,7 @@ function autofillProductsFromUi() {
     }
 
     try {
-      product.autofill();
+      product.autofill(overwrite);
     } catch (e) {
       if (e instanceof ColumnNotFoundError) {
         ui.alert(alertTitle, `Não foi possível encontrar a coluna ` +
@@ -178,4 +183,15 @@ function autofillProductsFromUi() {
 
     product.save();
   }
+}
+
+function forceAutofillProductsFromUi() {
+  const dialogTitle = menuItems['forceAutofillProductsFromUi'];
+  const ui = SpreadsheetApp.getUi();
+  const resp = ui.alert(dialogTitle, 'Você tem certeza que quer forçar o ' +
+    'auto-preenchimento?', ui.ButtonSet.YES_NO);
+  if (resp !== ui.Button.YES) {
+    return;
+  }
+  autofillProductsFromUi(true);
 }
