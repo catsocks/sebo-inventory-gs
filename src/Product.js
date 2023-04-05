@@ -245,7 +245,10 @@ class Product extends MultiSheetRow {
   }
 
   static parseCSV(csv) {
-    return removeSuffix(csv, '; ...').split(';').filter((s) => s !== '');
+    return removeSuffix(csv, '; ...')
+        .split(';')
+        .map((s) => s.trim())
+        .filter((s) => s !== '');
   }
 
   createShopeeDescriptionSynopsis() {
