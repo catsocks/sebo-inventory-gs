@@ -1,7 +1,5 @@
-/* exported formatBulletList, formatList, uncapitalize, removeSuffix, slugify */
+/* exported formatBulletList, formatList, uncapitalize, removeSuffix */
 'use strict';
-
-const _ = LodashGS.load();
 
 /**
  * Returns a bullet list from the given list.
@@ -60,14 +58,4 @@ function removeSuffix(text, suffix) {
     return text.slice(0, text.length - suffix.length);
   }
   return text;
-}
-
-/**
- * Return the given text in kebab case.
- *
- * @param {string} text
- * @returns {string}
- */
-function slugify(text) {
-  return _.kebabCase(text);
 }

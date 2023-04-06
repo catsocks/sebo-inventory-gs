@@ -105,10 +105,6 @@ function itShouldRemoveSuffix() {
       'Maçãs, laranjas, uvas');
 }
 
-function itShouldSlugify() {
-  assertEqual(slugify('Maçãs e laranjas'), 'macas-e-laranjas');
-}
-
 function itShouldChangeRowValue(spreadsheet, testName) {
   const fixture = new RowFixture(spreadsheet, testName);
   fixture.withCleanup((fixture) => {
@@ -165,7 +161,6 @@ function runTests() {
     itShouldFormatList,
     itShouldUncapitalize,
     itShouldRemoveSuffix,
-    itShouldSlugify,
     itShouldChangeRowValue,
     itShouldFindRows,
     itShouldChangeMultipleRows,
