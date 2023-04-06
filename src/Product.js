@@ -326,14 +326,14 @@ class ProductColumnsAutofiller {
     this._list = [];
   }
 
-  add(sheet, column, fn) {
-    this._list.push({sheet, column, fn});
+  add(sheet, column, method) {
+    this._list.push({sheet, column, method});
   }
 
   autofill(product, overwrite) {
-    for (const {sheet, column, fn} of this._list) {
+    for (const {sheet, column, method} of this._list) {
       if (product.getValue(sheet, column) === '' || overwrite) {
-        fn.bind(product)();
+        method.bind(product)();
       }
     }
   }
