@@ -3,6 +3,7 @@
   "scriptId": "<fill in>",
   "rootDir": "src",
   "filePushOrder": [
+    "src/Time.js",
     "src/Text.js",
     "src/Range.js",
     "src/Product.js",
