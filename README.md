@@ -1,18 +1,17 @@
 # Sebo inventory
 
-[Google Apps Script](https://developers.google.com/apps-script) for helping me
-with an inventory spreadsheet.
+[Google Apps Script](https://developers.google.com/apps-script) for managing
+an inventory spreadsheet.
 
 The text for the menu items, alerts and prompts are in Portuguese. Everything
 else is in English.
 
 [Code.js](src/Code.js) is a good starting point to explore this project.
 
-## Forking
+## Develop
 
-I recommend you familiarize yourself with
-[Clasp](https://github.com/google/clasp) so you may conveniently edit the code
-outside the Apps Script editor.
+I recommend using [Clasp](https://github.com/google/clasp) to make it easier
+to develop the project locally.
 
 The following Clasp commands are particularly useful:
 
@@ -32,7 +31,7 @@ visting the link below:
 
 	https://console.cloud.google.com/apis/library/script.googleapis.com?project=<projectId>
 
-## To-do
+## To do
 
 - [ ] Use `@types/google-apps-script` type definitions in the JSDoc comments.
 
